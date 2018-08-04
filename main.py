@@ -123,7 +123,6 @@ def button(bot, update):
         if result[0] == 'lichess':
             top_chat_rating(bot, update, lichess, result[1])
     else:
-        t = ChessAPIEnum.LICHESS.value
         if query.data == ChessAPIEnum.LICHESS.value:
             keyboard = [
                 [InlineKeyboardButton(game_type.name, callback_data="['lichess', '%s']" % game_type.value)]
