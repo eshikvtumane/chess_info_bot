@@ -145,6 +145,12 @@ def button(bot, update):
 
     result = core.convert_string_to_list(query_data)
 
+    if query_data == 'donate':
+        bot.edit_message_text(text='<a href="%s">%s</a>' % (config.donate, config.donate),
+                              chat_id=query.message.chat_id,
+                              message_id=query.message.message_id,
+                              parse_mode=telegram.ParseMode.HTML)
+
     if isinstance(result, list):
         if result[0] == 'lichess':
             if not wrapper.check_chat_name(config.chat_name):
@@ -176,9 +182,11 @@ def menu(bot, update):
                                                wrapper.get_chat_id()):
         keyboard.append([InlineKeyboardButton("Lichess rating", callback_data='lichess')])
     else:
-        keyboard.append([InlineKeyboardButton("NOPE", callback_data='111')])
+        pass
 
-
+    keyboard += [
+        [InlineKeyboardButton("Donate", callback_data='donate')]
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
@@ -187,7 +195,7 @@ def main():
     updater = Updater(config.telegram_bot_api_key)
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(CommandHandler('set_nickname_lichess', set_nickname_lichess))
+    updater.dispatcher.add_handler(CommandHandler('new_lichess', set_nickname_lichess))
     updater.dispatcher.add_handler(CommandHandler('elo', elo))
     updater.dispatcher.add_handler(CommandHandler('link', link))
     updater.dispatcher.add_handler(CommandHandler('top_chat_lichess', top_chat_lichess))

@@ -19,6 +19,7 @@ class AttributeEnum(Enum):
     BOT_SECRET_KEY = 'BOT_SECRET_KEY'
 
     CHAT_NAME = 'CHAT_NAME'
+    DONATE = 'DONATE'
 
 
 class ConfigSettings:
@@ -66,3 +67,7 @@ class ConfigSettings:
     @property
     def chat_name(self):
         return self.get_settings_property(AttributeEnum.CHAT_NAME)
+
+    @property
+    def donate(self):
+        return self.get_settings_property(AttributeEnum.DONATE)
