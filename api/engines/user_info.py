@@ -66,7 +66,7 @@ class UserInfo:
     def get_total_info(self):
         username = '<b>%s</b>\n' % self.username
         separator = '-' * 40 + '\n'
-        return username + self.get_info_html() + separator + self.get_games_rate_html()
+        return username + separator + self.get_games_rate_html()
 
     def get_link_html(self):
         return 'Link: <a href="%s">Click</a> \n' % self.url
