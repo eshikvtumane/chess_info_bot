@@ -151,6 +151,12 @@ def button(bot, update):
                               message_id=query.message.message_id,
                               parse_mode=telegram.ParseMode.HTML)
 
+    if query_data == 'contact':
+        bot.edit_message_text(text='%s' % config.contact,
+                              chat_id=query.message.chat_id,
+                              message_id=query.message.message_id,
+                              parse_mode=telegram.ParseMode.HTML)
+
     if isinstance(result, list):
         if result[0] == 'lichess':
             if not wrapper.check_chat_name(config.chat_name):
@@ -185,7 +191,8 @@ def menu(bot, update):
         pass
 
     keyboard += [
-        [InlineKeyboardButton("Donate", callback_data='donate')]
+        [InlineKeyboardButton("Donate", callback_data='donate')],
+        [InlineKeyboardButton("Contact", callback_data='contact')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 

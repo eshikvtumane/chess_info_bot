@@ -20,6 +20,7 @@ class AttributeEnum(Enum):
 
     CHAT_NAME = 'CHAT_NAME'
     DONATE = 'DONATE'
+    CONTACT = 'CONTACT'
 
 
 class ConfigSettings:
@@ -71,3 +72,7 @@ class ConfigSettings:
     @property
     def donate(self):
         return self.get_settings_property(AttributeEnum.DONATE)
+
+    @property
+    def contact(self):
+        return self.get_settings_property(AttributeEnum.CONTACT)
