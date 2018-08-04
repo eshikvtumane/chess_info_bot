@@ -34,7 +34,7 @@ core = Core(dal)
 
 def start(bot, update):
     core.create_user(update)
-    update.message.reply_text('You added in bot database.')
+    update.message.reply_text('You added in bot database. Send /help for see avalible commands')
 
 
 def set_nickname_lichess(bot, update):
