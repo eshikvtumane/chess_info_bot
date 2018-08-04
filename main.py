@@ -24,6 +24,7 @@ dal = DataAccessLayer(database=config.db_name,
                       password=config.db_password,
                       address=config.db_address,
                       port=config.db_port)
+
 core = Core(dal)
 
 
@@ -45,7 +46,7 @@ def set_nickname_lichess(bot, update):
             if dal.get_user(wrapper.get_user_id()) is None:
                 dal.insert_user(wrapper.get_user_id())
 
-            core.update_nickname(wrapper.get_user_id(), nickname, lichess.name)
+            core.update_nickname_and_chess_api_id(wrapper.get_user_id(), nickname, lichess, info.user_id)
             message = info.get_total_info()
     else:
         message = 'You not sent nickname'
@@ -79,10 +80,19 @@ def elo(bot, update):
                      parse_mode=telegram.ParseMode.HTML)
 
 
-def top_lichess(bot, update):
-    member = bot.getChat(update.effective_chat.id)
-    member = bot.getChatMembersCount(update.effective_chat.id)
-    update.message.reply_text("")
+def top_chat_lichess(bot, update):
+    wrapper = TelegramBotResponseWrapper(update)
+    type_game_name = 'blitz'
+    # users_telegram_ids = core.get_all_telegram_ids_db()
+    # users_ids = core.get_all_users_id_from_chat_without_bot(wrapper.get_chat_id())
+    lichess_ids = core.get_all_lichess_ids_from_db()
+    users = core.get_users_info_from_chess_api_by_nicknames(lichess, lichess_ids)
+    sorted_users = core.sorting_user_by_game_type(type_game_name, users)
+    message = core.rating_html(lichess.name, type_game_name, sorted_users)
+
+    bot.send_message(chat_id=wrapper.get_chat_id(),
+                     text=message,
+                     parse_mode=telegram.ParseMode.HTML)
 
 
 def main():
@@ -91,6 +101,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('set_nickname_lichess', set_nickname_lichess))
     updater.dispatcher.add_handler(CommandHandler('elo', elo))
+    updater.dispatcher.add_handler(CommandHandler('top_chat_lichess', top_chat_lichess))
 
     updater.start_polling()
     updater.idle()

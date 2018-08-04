@@ -2,7 +2,6 @@ from pymongo import MongoClient
 
 
 class DataAccessLayer:
-
     def __init__(self, database, login=None, password=None, address='127.0.0.1', port='27017'):
         self._connect(login, password, address, port)
         self._set_db(database)
@@ -10,7 +9,6 @@ class DataAccessLayer:
 
     def _connect(self, login, password, address, port):
         self._conn = MongoClient(address, port)
-
 
     def _set_db(self, db_name):
         self._db = self._conn.get_database(db_name)
@@ -21,8 +19,9 @@ class DataAccessLayer:
     def insert_user(self, telegram_user_id):
         self._users.insert({"telegram_id": telegram_user_id})
 
-    def update_lichess_nickname(self, telegram_user_id, nickname):
-        self._users.update({"telegram_id": telegram_user_id}, {"$set": {"lichess_nickname": nickname}})
+    def update_lichess_nickname(self, telegram_user_id, nickname, chess_api_id):
+        self._users.update({"telegram_id": telegram_user_id},
+                           {"$set": {"lichess_nickname": nickname, "lichess_id": chess_api_id}})
 
     def get_user(self, telegram_user_id):
         user = self._users.find_one({"telegram_id": telegram_user_id})
@@ -30,6 +29,13 @@ class DataAccessLayer:
         if user:
             return User(user.get('telegram_id', None), user.get('lichess_nickname', None))
         return None
+
+    def get_all_lichess_ids(self):
+        cursor = self._users.find({'lichess_id': {'$exists': True}}, {'lichess_id'})
+        return [c.get('lichess_id') for c in cursor]
+
+    def get_all_telegram_ids(self):
+        return self._users.find({}, {'telegram_id'})
 
     def close(self):
         self._conn.close()
