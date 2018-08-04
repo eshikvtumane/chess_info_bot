@@ -18,6 +18,8 @@ class AttributeEnum(Enum):
     API_HASH = 'API_HASH'
     BOT_SECRET_KEY = 'BOT_SECRET_KEY'
 
+    CHAT_NAME = 'CHAT_NAME'
+
 
 class ConfigSettings:
     def __init__(self):
@@ -60,3 +62,7 @@ class ConfigSettings:
     @property
     def telegram_api_hash(self):
         return self.get_settings_property(AttributeEnum.API_HASH)
+
+    @property
+    def chat_name(self):
+        return self.get_settings_property(AttributeEnum.CHAT_NAME)

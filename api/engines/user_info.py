@@ -68,6 +68,10 @@ class UserInfo:
         separator = '-' * 40 + '\n'
         return username + self.get_info_html() + separator + self.get_games_rate_html()
 
+    def get_link_html(self):
+        return 'Link: <a href="%s">Click</a> \n' % self.url
+
+
     def get_game_stats_by_name(self, game_type):
         stats = list(filter(lambda x: x.name == game_type, self.perfs))
         if stats:

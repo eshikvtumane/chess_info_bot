@@ -10,6 +10,7 @@ from api.game_type import GameType
 from bot_core import Core
 from config_settings import ConfigSettings
 from data_access_layer import DataAccessLayer
+from permission import Permission
 from telegram_bot_response_wrapper import TelegramBotResponseWrapper
 
 __all__ = ['main']
@@ -82,6 +83,29 @@ def elo(bot, update):
                      text=message,
                      parse_mode=telegram.ParseMode.HTML)
 
+def link(bot, update):
+    wrapper = TelegramBotResponseWrapper(update)
+
+    reply_message = wrapper.check_reply_message()
+
+    if reply_message:
+        user_id = wrapper.get_user_id_from_reply_message()
+    else:
+        user_id = wrapper.get_user_id()
+
+    user = dal.get_user(user_id)
+
+    if user and user.check_lichess_nickname():
+        nickname = user.lichess_nickname
+        info = core.get_info_by_nickname(nickname, lichess)
+        message = info.get_link_html()
+    else:
+        message = 'User not register in bot'
+
+    bot.send_message(chat_id=wrapper.get_chat_id(),
+                     text=message,
+                     parse_mode=telegram.ParseMode.HTML)
+
 
 def top_chat_rating(bot, update, chess_api, type_game_name):
     wrapper = TelegramBotResponseWrapper(update)
@@ -116,12 +140,18 @@ def top_chat_lichess(bot, update):
 def button(bot, update):
     query = update.callback_query
     query_data = query.data
+    permission = Permission(bot)
+    wrapper = TelegramBotResponseWrapper(update)
 
     result = core.convert_string_to_list(query_data)
 
     if isinstance(result, list):
         if result[0] == 'lichess':
-            top_chat_rating(bot, update, lichess, result[1])
+            if not wrapper.check_chat_name(config.chat_name):
+                    top_chat_rating(bot, update, lichess, result[1])
+            elif permission.check_user_in_administrators(wrapper.get_user_id(),
+                                                         wrapper.get_chat_id()):
+                top_chat_rating(bot, update, lichess, result[1])
     else:
         if query.data == ChessAPIEnum.LICHESS.value:
             keyboard = [
@@ -136,9 +166,18 @@ def button(bot, update):
 
 
 def menu(bot, update):
-    keyboard = [
-        [InlineKeyboardButton("Lichess rating", callback_data='lichess')]
-    ]
+    wrapper = TelegramBotResponseWrapper(update)
+    permission = Permission(bot)
+    keyboard = []
+
+    if not wrapper.check_chat_name(config.chat_name):
+        keyboard.append([InlineKeyboardButton("Lichess rating", callback_data='lichess')])
+    elif permission.check_user_in_administrators(wrapper.get_user_id(),
+                                               wrapper.get_chat_id()):
+        keyboard.append([InlineKeyboardButton("Lichess rating", callback_data='lichess')])
+    else:
+        keyboard.append([InlineKeyboardButton("NOPE", callback_data='111')])
+
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -150,6 +189,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('set_nickname_lichess', set_nickname_lichess))
     updater.dispatcher.add_handler(CommandHandler('elo', elo))
+    updater.dispatcher.add_handler(CommandHandler('link', link))
     updater.dispatcher.add_handler(CommandHandler('top_chat_lichess', top_chat_lichess))
     updater.dispatcher.add_handler(CommandHandler('menu', menu))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))

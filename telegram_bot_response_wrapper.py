@@ -8,6 +8,15 @@ class TelegramBotResponseWrapper:
     def get_chat_id(self):
         return self._update.effective_chat.id
 
+    def get_chat_name(self):
+        return self._update.effective_chat.title
+
+    def check_chat_name(self, name):
+        chat_name = self.get_chat_name()
+        if chat_name == name:
+            return True
+        return False
+
     def get_command_args(self):
         result = self._update.effective_message.text.split(' ')
 
