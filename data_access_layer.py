@@ -14,7 +14,7 @@ class DataAccessLayer:
         self._db = self._conn.get_database(db_name)
 
     def _set_collections(self):
-        self._users = self._db.get_collection('users_test')
+        self._users = self._db.get_collection('users')
 
     def insert_user(self, telegram_user_id, telegram_fullname, telegram_username):
         self._users.insert({"telegram_id": telegram_user_id,
