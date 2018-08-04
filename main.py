@@ -48,7 +48,7 @@ def set_nickname_lichess(bot, update):
             message = info
         else:
             if dal.get_user(wrapper.get_user_id()) is None:
-                dal.insert_user(wrapper.get_user_id())
+                core.create_user(update)
 
             core.update_nickname_and_chess_api_id(wrapper.get_user_id(), nickname, lichess, info.user_id)
             message = info.get_total_info()

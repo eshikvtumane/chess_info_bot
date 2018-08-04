@@ -11,7 +11,12 @@ class Core:
 
     def create_user(self, update):
         wrapper = TelegramBotResponseWrapper(update)
-        self._data_access_layer.insert_user(wrapper.get_user_id())
+        user = self._data_access_layer.get_user(wrapper.get_user_id())
+
+        if user is None:
+            self._data_access_layer.insert_user(wrapper.get_user_id(),
+                                                wrapper.get_telegram_fullname(),
+                                                wrapper.get_telegram_username())
 
     def get_info_by_nickname(self, nickname, chess_api):
         info = chess_api.get_user_by_username(nickname)

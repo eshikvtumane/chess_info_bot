@@ -16,8 +16,10 @@ class DataAccessLayer:
     def _set_collections(self):
         self._users = self._db.get_collection('users_test')
 
-    def insert_user(self, telegram_user_id):
-        self._users.insert({"telegram_id": telegram_user_id})
+    def insert_user(self, telegram_user_id, telegram_fullname, telegram_username):
+        self._users.insert({"telegram_id": telegram_user_id,
+                            "telegram_fullname": telegram_fullname,
+                            "telegram_username": telegram_username})
 
     def update_lichess_nickname(self, telegram_user_id, nickname, chess_api_id):
         self._users.update({"telegram_id": telegram_user_id},

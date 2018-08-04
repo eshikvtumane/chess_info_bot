@@ -35,3 +35,10 @@ class TelegramBotResponseWrapper:
             return None
 
         return self._update.effective_message.reply_to_message.from_user.id
+
+    def get_telegram_username(self):
+        return self._update.effective_user.username
+
+    def get_telegram_fullname(self):
+        user = self._update.effective_user
+        return user.full_name
