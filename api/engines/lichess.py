@@ -25,7 +25,7 @@ class LichessAPI:
         users = self.api.users_by_ids(ids)
         return [UserInfo(user) for user in users]
 
-    # def get_info(self):
-    #     user
+
+
 
 
