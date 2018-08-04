@@ -198,6 +198,20 @@ def menu(bot, update):
 
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
+def help(bot, update):
+    wrapper = TelegramBotResponseWrapper(update)
+    lines = [
+        '/new_lichess nickname - add your lichess nickname',
+        '/elo - user information rating',
+        '/link - get user lichess profile link',
+        '/menu - bot menu for retrieve lichess users rating, etc',
+    ]
+    message = '\n'.join(lines)
+
+    bot.send_message(chat_id=wrapper.get_chat_id(),
+                     text=message,
+                     parse_mode=telegram.ParseMode.HTML)
+
 def main():
     updater = Updater(config.telegram_bot_api_key)
 
@@ -207,6 +221,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('link', link))
     updater.dispatcher.add_handler(CommandHandler('top_chat_lichess', top_chat_lichess))
     updater.dispatcher.add_handler(CommandHandler('menu', menu))
+    updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
 
     updater.start_polling()
