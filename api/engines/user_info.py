@@ -61,7 +61,6 @@ class UserInfo:
     def get_info_html(self):
         info = 'Online: %s \n' % self.online
         info += 'Language: %s \n' % self.language
-        info += 'Link: <a href="%s">Click</a> \n' % self.url
         return info
 
     def get_total_info(self):
