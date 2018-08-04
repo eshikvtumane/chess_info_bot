@@ -1,4 +1,6 @@
 python-lichess==0.6
 python-telegram-bot==10.1.0
-telethon==1.1.1
 pymongo==3.7.1
+pytest==3.6.2
+pytest-cov==2.5.1
+mixer==6.0.1
