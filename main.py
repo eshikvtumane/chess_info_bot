@@ -1,9 +1,12 @@
 import logging
 
 import telegram
-from telegram.ext import Updater, CommandHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
 
+from api.chess_api_enum import ChessAPIEnum
 from api.engines.lichess import LichessAPI
+from api.game_type import GameType
 from bot_core import Core
 from config_settings import ConfigSettings
 from data_access_layer import DataAccessLayer
@@ -80,6 +83,22 @@ def elo(bot, update):
                      parse_mode=telegram.ParseMode.HTML)
 
 
+def top_chat_rating(bot, update, chess_api, type_game_name):
+    wrapper = TelegramBotResponseWrapper(update)
+    chess_api_users_ids = core.get_all_chess_api_ids_from_db(chess_api.name)
+
+    if chess_api_users_ids is None:
+        message = '%s not found' % chess_api.name
+    else:
+        users = core.get_users_info_from_chess_api_by_nicknames(chess_api, chess_api_users_ids)
+        sorted_users = core.sorting_user_by_game_type(type_game_name, users)
+        message = core.rating_html(lichess.name, type_game_name, sorted_users)
+
+    bot.send_message(chat_id=wrapper.get_chat_id(),
+                     text=message,
+                     parse_mode=telegram.ParseMode.HTML)
+
+
 def top_chat_lichess(bot, update):
     wrapper = TelegramBotResponseWrapper(update)
     type_game_name = 'blitz'
@@ -94,6 +113,37 @@ def top_chat_lichess(bot, update):
                      text=message,
                      parse_mode=telegram.ParseMode.HTML)
 
+def button(bot, update):
+    query = update.callback_query
+    query_data = query.data
+
+    result = core.convert_string_to_list(query_data)
+
+    if isinstance(result, list):
+        if result[0] == 'lichess':
+            top_chat_rating(bot, update, lichess, result[1])
+    else:
+        t = ChessAPIEnum.LICHESS.value
+        if query.data == ChessAPIEnum.LICHESS.value:
+            keyboard = [
+                [InlineKeyboardButton(game_type.name, callback_data="['lichess', '%s']" % game_type.value)]
+                for game_type in GameType
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            bot.edit_message_text(text="Choose game:".format(query.data),
+                          chat_id=query.message.chat_id,
+                          message_id=query.message.message_id, reply_markup=reply_markup)
+
+
+def menu(bot, update):
+    keyboard = [
+        [InlineKeyboardButton("Lichess rating", callback_data='lichess')]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 def main():
     updater = Updater(config.telegram_bot_api_key)
@@ -102,6 +152,8 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('set_nickname_lichess', set_nickname_lichess))
     updater.dispatcher.add_handler(CommandHandler('elo', elo))
     updater.dispatcher.add_handler(CommandHandler('top_chat_lichess', top_chat_lichess))
+    updater.dispatcher.add_handler(CommandHandler('menu', menu))
+    updater.dispatcher.add_handler(CallbackQueryHandler(button))
 
     updater.start_polling()
     updater.idle()

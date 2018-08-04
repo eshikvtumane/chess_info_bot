@@ -1,3 +1,4 @@
+import ast
 from filecmp import cmp
 
 from api.chess_api_enum import ChessAPIEnum
@@ -38,6 +39,12 @@ class Core:
     def get_all_lichess_ids_from_db(self):
         return self._data_access_layer.get_all_lichess_ids()
 
+    def get_all_chess_api_ids_from_db(self, chess_api_name):
+        method = getattr(self._data_access_layer, 'get_all_%s_ids' % chess_api_name)
+        if method:
+            return method()
+        return None
+
     def get_users_info_from_chess_api_by_nicknames(self, chess_api, ids=[]):
         return chess_api.get_users_by_ids(ids)
 
@@ -64,3 +71,10 @@ class Core:
             lines.append('%s) %s %s' % (idx+1, username, rating))
 
         return header + '\n'.join(lines)
+
+    @staticmethod
+    def convert_string_to_list(string_for_convert):
+        try:
+            return ast.literal_eval(string_for_convert)
+        except:
+            return string_for_convert
